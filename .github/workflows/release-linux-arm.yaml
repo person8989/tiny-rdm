@@ -1,0 +1,190 @@
+name: Release Linux App
+run-name: ${{ github.event.release.tag_name || github.event.inputs.tag }}
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Version tag
+        required: true
+        default: "1.0.0"
+
+jobs:
+  release:
+    name: Release Linux App (${{ matrix.deb_arch }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-22.04
+            deb_arch: amd64
+            appimage_arch: x86_64
+          - platform: linux/arm64
+            runner: ubuntu-22.04-arm
+            deb_arch: arm64
+            appimage_arch: aarch64
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Normalise platform tag
+        id: normalise_platform
+        shell: bash
+        run: |
+          tag=$(echo "${{ matrix.platform }}" | sed -e 's/\//_/g')
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Normalise version tag
+        id: normalise_version
+        shell: bash
+        run: |
+          if [ -z "${{ github.event.release.tag_name }}" ]; then
+            version=$(echo "${{ github.event.inputs.tag }}" | sed -e 's/^v//g')
+          else
+            version=$(echo "${{ github.event.release.tag_name }}" | sed -e 's/^v//g')
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: stable
+
+      - name: Install wails
+        shell: bash
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - name: Install Ubuntu prerequisites
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            jq \
+            libgtk-3-dev \
+            libwebkit2gtk-4.0-dev \
+            libfuse-dev \
+            libfuse2
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build frontend assets
+        shell: bash
+        run: |
+          npm install -g npm@9
+          jq '.info.productVersion = "${{ steps.normalise_version.outputs.version }}"' wails.json > tmp.json
+          mv tmp.json wails.json
+
+          cd frontend
+          jq '.version = "${{ steps.normalise_version.outputs.version }}"' package.json > tmp.json
+          mv tmp.json package.json
+          npm install
+
+      - name: Build wails app for Linux
+        shell: bash
+        run: |
+          CGO_ENABLED=1 wails build -platform ${{ matrix.platform }} \
+            -ldflags "-X main.version=v${{ steps.normalise_version.outputs.version }} -X main.gaMeasurementID=${{ secrets.GA_MEASUREMENT_ID }} -X main.gaSecretKey=${{ matrix.deb_arch == 'arm64' && secrets.LINUX_GA_SECRET || secrets.LINUX_GA_SECRET }}" \
+            -o tiny-rdm
+
+      - name: Define build dir
+        id: vars
+        shell: bash
+        run: |
+          echo "build_dir=build/linux/tiny-rdm_0.0.0_${{ matrix.deb_arch }}" >> "$GITHUB_OUTPUT"
+
+      - name: Setup control template
+        shell: bash
+        run: |
+          control_file="${{ steps.vars.outputs.build_dir }}/DEBIAN/control"
+          content=$(cat "$control_file")
+          name=$(jq -r '.name' wails.json | tr -d ' ' | tr '[:upper:]' '[:lower:]')
+          content=$(echo "$content" | sed -e "s/{{.Name}}/$name/g")
+          content=$(echo "$content" | sed -e "s/{{.Info.ProductVersion}}/$(jq -r '.info.productVersion' wails.json)/g")
+          content=$(echo "$content" | sed -e "s/{{.Author.Name}}/$(jq -r '.author.name' wails.json)/g")
+          content=$(echo "$content" | sed -e "s/{{.Author.Email}}/$(jq -r '.author.email' wails.json)/g")
+          content=$(echo "$content" | sed -e "s/{{.Info.Comments}}/$(jq -r '.info.comments' wails.json)/g")
+          content=$(echo "$content" | sed -e "s/{{.libwebkit2gtk.PackageName}}/libwebkit2gtk-4.0-37/g")
+          echo "$content" > "$control_file"
+
+      - name: Setup app template
+        shell: bash
+        run: |
+          desktop_file="${{ steps.vars.outputs.build_dir }}/usr/share/applications/tiny-rdm.desktop"
+          content=$(cat "$desktop_file")
+          content=$(echo "$content" | sed -e "s/{{.Info.ProductName}}/$(jq -r '.info.productName' wails.json)/g")
+          content=$(echo "$content" | sed -e "s/{{.Info.Comments}}/$(jq -r '.info.comments' wails.json)/g")
+          echo "$content" > "$desktop_file"
+
+      - name: Package up deb file
+        shell: bash
+        run: |
+          pkg_dir="build/linux/tiny-rdm_${{ steps.normalise_version.outputs.version }}_${{ matrix.deb_arch }}"
+          mv build/bin/tiny-rdm "${{ steps.vars.outputs.build_dir }}/usr/local/bin/"
+          cd build/linux
+          mv "tiny-rdm_0.0.0_${{ matrix.deb_arch }}" "$pkg_dir"
+          sed -i 's/0.0.0/${{ steps.normalise_version.outputs.version }}/g' "$pkg_dir/DEBIAN/control"
+          dpkg-deb --build -Zxz "$pkg_dir"
+
+      - name: Package up appimage file
+        shell: bash
+        run: |
+          curl -L "https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20240109-1/linuxdeploy-${{ matrix.appimage_arch }}.AppImage" -o linuxdeploy
+          chmod u+x linuxdeploy
+
+          ./linuxdeploy --appdir AppDir
+
+          pushd AppDir
+          find /usr/lib* -name WebKitNetworkProcess -exec mkdir -p "$(dirname '{}')" \; -exec cp --parents '{}' "." \; || true
+          find /usr/lib* -name WebKitWebProcess -exec mkdir -p "$(dirname '{}')" \; -exec cp --parents '{}' "." \; || true
+          find /usr/lib* -name libwebkit2gtkinjectedbundle.so -exec mkdir -p "$(dirname '{}')" \; -exec cp --parents '{}' "." \; || true
+          popd
+
+          mkdir -p AppDir/usr/share/icons/hicolor/512x512/apps
+          build_dir="build/linux/tiny-rdm_${{ steps.normalise_version.outputs.version }}_${{ matrix.deb_arch }}"
+
+          cp "$build_dir/usr/share/icons/hicolor/512x512/apps/tiny-rdm.png" AppDir/usr/share/icons/hicolor/512x512/apps/
+          cp "$build_dir/usr/local/bin/tiny-rdm" AppDir/usr/bin/
+
+          sed -i 's#/usr/local/bin/tiny-rdm#tiny-rdm#g' "$build_dir/usr/share/applications/tiny-rdm.desktop"
+
+          curl -L -o linuxdeploy-plugin-gtk.sh "https://raw.githubusercontent.com/tauri-apps/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh"
+          sed -i '/XDG_DATA_DIRS/a export WEBKIT_DISABLE_COMPOSITING_MODE=1' linuxdeploy-plugin-gtk.sh
+          chmod +x linuxdeploy-plugin-gtk.sh
+
+          curl -L -o AppDir/AppRun "https://github.com/AppImage/AppImageKit/releases/download/continuous/AppRun-${{ matrix.appimage_arch }}"
+
+          ./linuxdeploy --appdir AppDir \
+            --output=appimage \
+            --plugin=gtk \
+            -e "$build_dir/usr/local/bin/tiny-rdm" \
+            -d "$build_dir/usr/share/applications/tiny-rdm.desktop"
+
+      - name: Rename deb
+        working-directory: ./build/linux
+        run: |
+          mv "tiny-rdm_${{ steps.normalise_version.outputs.version }}_${{ matrix.deb_arch }}.deb" \
+             "tiny-rdm_${{ steps.normalise_version.outputs.version }}_${{ steps.normalise_platform.outputs.tag }}.deb"
+
+      - name: Rename appimage
+        shell: bash
+        run: |
+          mv "Tiny_RDM-${{ matrix.appimage_arch }}.AppImage" \
+             "tiny-rdm_${{ steps.normalise_version.outputs.version }}_${{ steps.normalise_platform.outputs.tag }}.AppImage"
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.normalise_version.outputs.version }}
+          files: |
+            ./build/linux/tiny-rdm_${{ steps.normalise_version.outputs.version }}_${{ steps.normalise_platform.outputs.tag }}.deb
+            tiny-rdm_${{ steps.normalise_version.outputs.version }}_${{ steps.normalise_platform.outputs.tag }}.AppImage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
