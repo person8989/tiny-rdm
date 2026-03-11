@@ -146,32 +146,6 @@ const decoderColumns = computed(() => {
     ]
 })
 
-const onOpenPrivacy = () => {
-    let helpUrl = ''
-    switch (prefStore.currentLanguage) {
-        case 'zh':
-            helpUrl = 'https://tinyrdm.com/zh/guide/privacy.html'
-            break
-        default:
-            helpUrl = 'https://tinyrdm.com/guide/privacy.html'
-            break
-    }
-    BrowserOpenURL(helpUrl)
-}
-
-const openDecodeHelp = () => {
-    let helpUrl = ''
-    switch (prefStore.currentLanguage) {
-        case 'zh':
-            helpUrl = 'https://tinyrdm.com/zh/guide/custom-decoder.html'
-            break
-        default:
-            helpUrl = 'https://tinyrdm.com/guide/custom-decoder.html'
-            break
-    }
-    BrowserOpenURL(helpUrl)
-}
-
 const onSavePreferences = async () => {
     const success = await prefStore.savePreferences()
     if (success) {
@@ -283,14 +257,6 @@ const onClose = () => {
                                 {{ $t('preferences.general.auto_check_update') }}
                             </n-checkbox>
                         </n-form-item-gi>
-                        <n-form-item-gi :label="$t('preferences.general.privacy')" :span="24">
-                            <n-checkbox v-model:checked="prefStore.general.allowTrack">
-                                {{ $t('preferences.general.allow_track') }}
-                                <n-button style="text-decoration: underline" text type="primary" @click="onOpenPrivacy">
-                                    {{ $t('preferences.general.privacy') }}
-                                </n-button>
-                            </n-checkbox>
-                        </n-form-item-gi>
                     </n-grid>
                 </n-form>
             </n-tab-pane>
@@ -398,12 +364,6 @@ const onClose = () => {
                                 <n-icon :component="AddLink" size="18" />
                             </template>
                             {{ $t('preferences.decoder.new') }}
-                        </n-button>
-                        <n-button @click="openDecodeHelp">
-                            <template #icon>
-                                <n-icon :component="Help" size="18" />
-                            </template>
-                            {{ $t('preferences.decoder.help') }}
                         </n-button>
                     </n-space>
                     <n-data-table

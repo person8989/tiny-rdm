@@ -168,8 +168,6 @@
     "server": "Sunucu",
     "browser": "Veri Tarayıcı",
     "log": "Log",
-    "wechat_official": "WeChat Resmi Hesap",
-    "follow_x": "𝕏'i Takip Et",
     "github": "Github",
     "logout": "Çıkış Yap"
   },
@@ -386,9 +384,8 @@
     },
     "upgrade": {
       "title": "Yeni Sürüm Mevcut",
-      "new_version_tip": "Yeni {ver} sürümü mevcut, şimdi indirilsin mi?",
+      "new_version_tip": "Yeni {ver} sürümü mevcut.",
       "no_update": "Güncelsiniz",
-      "download_now": "Şimdi İndir",
       "later": "Sonra",
       "skip": "Bu Sürümü Atla"
     },

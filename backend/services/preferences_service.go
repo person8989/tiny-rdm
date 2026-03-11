@@ -260,7 +260,6 @@ func (p *preferencesService) CheckForUpdate() (resp types.JSResp) {
 		"latest":        respObj.Version,
 		"description":   respObj.Description,
 		"download_page": respObj.DownloadPage,
-		"sponsor":       respObj.Sponsor,
 	}
 	return
 }

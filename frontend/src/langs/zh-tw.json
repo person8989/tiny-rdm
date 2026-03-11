@@ -168,8 +168,6 @@
     "server": "伺服器",
     "browser": "資料瀏覽器",
     "log": "日誌",
-    "wechat_official": "微信公眾號",
-    "follow_x": "關注我的\uD835\uDD4F",
     "github": "Github",
     "logout": "登出"
   },
@@ -386,9 +384,8 @@
     },
     "upgrade": {
       "title": "有可用新版本",
-      "new_version_tip": "新版本（{ver}），是否立即下載",
+      "new_version_tip": "發現新版本（{ver}）",
       "no_update": "目前已是最新版",
-      "download_now": "立即下載",
       "later": "稍後提醒我",
       "skip": "忽略本次更新"
     },

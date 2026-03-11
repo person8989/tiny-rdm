@@ -146,14 +146,6 @@ docker run -d --name tinyrdm \
 
 ## 關於
 
-### 贊助
-
-如果此專案對您有幫助，歡迎請作者喝杯咖啡 ☕️
-
-* 微信贊賞
-
-<img src="docs/images/wechat_sponsor.jpg" alt="wechat" width="200" />
-
 ### 感謝
 
 感謝以下服務商提供主機贊助

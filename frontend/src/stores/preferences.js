@@ -10,7 +10,6 @@ import {
     RestorePreferences,
     SetPreferences,
 } from 'wailsjs/go/services/preferencesService.js'
-import { BrowserOpenURL } from 'wailsjs/runtime/runtime.js'
 import { i18nGlobal } from '@/utils/i18n.js'
 import { enUS, NButton, NSpace, useOsTheme, zhCN } from 'naive-ui'
 import { h, nextTick } from 'vue'
@@ -500,24 +499,17 @@ const usePreferencesStore = defineStore('preferences', {
                     const {
                         version = 'v1.0.0',
                         latest,
-                        download_page: pageUrl = {},
                         description = {},
-                        sponsor = [],
-                        banner = [],
                     } = data
-                    const downUrl = pageUrl[this.currentLanguage] || pageUrl['en']
                     const descStr = description[this.currentLanguage] || description['en']
-                    // save sponsor ad
-                    if (!isEmpty(sponsor)) {
-                        localStorage.setItem('sponsor_ad', JSON.stringify(sponsor))
-                    }
-                    if (!isEmpty(banner)) {
-                        localStorage.setItem('banner', JSON.stringify(banner))
-                    }
+                    // clean up old ad data
+                    localStorage.removeItem('sponsor_ad')
+                    localStorage.removeItem('banner')
+                    localStorage.removeItem('banner_next_time')
                     if (
+                        !isEmpty(latest) &&
                         (manual || compareVersion(latest, this.general.skipVersion) !== 0) &&
-                        compareVersion(latest, version) > 0 &&
-                        !isEmpty(downUrl)
+                        compareVersion(latest, version) > 0
                     ) {
                         const notiRef = $notification.show({
                             title: `${i18nGlobal.t('dialogue.upgrade.title')} - ${latest}`,
@@ -548,19 +540,8 @@ const usePreferencesStore = defineStore('preferences', {
                                             },
                                             () => i18nGlobal.t('dialogue.upgrade.later'),
                                         ),
-                                        h(
-                                            NButton,
-                                            {
-                                                type: 'primary',
-                                                size: 'small',
-                                                secondary: true,
-                                                onClick: () => BrowserOpenURL(downUrl),
-                                            },
-                                            () => i18nGlobal.t('dialogue.upgrade.download_now'),
-                                        ),
                                     ]),
                                 ]),
-                            onPositiveClick: () => BrowserOpenURL(downUrl),
                         })
                         return
                     }

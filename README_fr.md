@@ -146,14 +146,6 @@ docker run -d --name tinyrdm \
 
 ## À propos
 
-### Sponsor
-
-Si ce projet vous est utile, n'hésitez pas à offrir un café ☕️
-
-* Wechat Sponsor
-
-<img src="docs/images/wechat_sponsor.jpg" alt="wechat" width="200" />
-
 ### Remerciements
 
 Merci aux fournisseurs de services suivants pour le parrainage d'hébergement

@@ -147,32 +147,6 @@ docker run -d --name tinyrdm \
 
 ## 关于
 
-如果你也同为独立开发者（团队），喜欢开源，或者对Tiny Craft的相关产品感兴趣，可以关注微信公众号或者加入QQ群，探讨心得，反馈意见，交个朋友。
-
-### 微信公众号（用户交流微信群）
-
-我会不定期更新一些关于独立开发的思考和感悟，以及独立产品的介绍，欢迎扫码关注~👏
-
-<img src="docs/images/wechat_official.png" alt="wechat" width="360" />
-
-### B站官方账号
-
-<img src="docs/images/bilibili_official.png" alt="bilibili" width="360" />
-
-### 独立开发互助QQ群
-
-```
-831077639
-```
-
-### 赞助
-
-该项目完全为爱发电，如果对你有所帮助，可以请作者喝杯咖啡 ☕️
-
-* 微信赞赏
-
-<img src="docs/images/wechat_sponsor.jpg" alt="wechat" width="200" />
-
 ### 感谢
 
 感谢以下服务商提供主机赞助

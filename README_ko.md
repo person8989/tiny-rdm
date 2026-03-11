@@ -146,14 +146,6 @@ docker run -d --name tinyrdm \
 
 ## 소개
 
-### 스폰서
-
-이 프로젝트가 도움이 되셨다면 커피 한 잔 사주세요 ☕️
-
-* Wechat 후원
-
-<img src="docs/images/wechat_sponsor.jpg" alt="wechat" width="200" />
-
 ### 감사
 
 호스팅 후원을 제공해 주신 다음 서비스 제공업체에 감사드립니다

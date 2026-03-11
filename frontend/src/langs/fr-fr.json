@@ -168,8 +168,6 @@
     "server": "Serveur",
     "browser": "Navigateur de données",
     "log": "Journal",
-    "wechat_official": "Compte officiel WeChat",
-    "follow_x": "Suivre \uD835\uDD4F",
     "github": "Github",
     "logout": "Se déconnecter"
   },
@@ -386,9 +384,8 @@
     },
     "upgrade": {
       "title": "Nouvelle version disponible",
-      "new_version_tip": "Nouvelle version {ver} disponible, télécharger maintenant ?",
+      "new_version_tip": "La version {ver} est disponible.",
       "no_update": "Vous êtes à jour",
-      "download_now": "Télécharger maintenant",
       "later": "Plus tard",
       "skip": "Ignorer cette version"
     },

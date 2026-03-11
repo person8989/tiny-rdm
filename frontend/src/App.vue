@@ -22,7 +22,6 @@ import ExportKeyDialog from '@/components/dialogs/ExportKeyDialog.vue'
 import ImportKeyDialog from '@/components/dialogs/ImportKeyDialog.vue'
 import { Info } from 'wailsjs/go/services/systemService.js'
 import DecoderDialog from '@/components/dialogs/DecoderDialog.vue'
-import { loadModule, trackEvent } from '@/utils/analytics.js'
 import { isWeb } from '@/utils/platform.js'
 import { STORAGE_LANG_KEY, STORAGE_THEME_KEY } from '@/consts/localstorage_key.js'
 
@@ -102,61 +101,6 @@ const initApp = async () => {
         await connectionStore.initConnections()
         if (!isWeb() && prefStore.autoCheckUpdate) {
             prefStore.checkForUpdate()
-        }
-        const env = await Environment()
-        loadModule(env.buildType !== 'dev' && prefStore.general.allowTrack !== false).then(() => {
-            Info().then(({ data }) => {
-                trackEvent('startup', data, true)
-            })
-        })
-
-        // show greetings and user behavior tracking statements
-        if (!!!prefStore.behavior.welcomed) {
-            const n = $notification.show({
-                title: () => i18n.t('dialogue.welcome.title'),
-                content: () => i18n.t('dialogue.welcome.content'),
-                // duration: 5000,
-                keepAliveOnHover: true,
-                closable: false,
-                meta: ' ',
-                action: () =>
-                    h(
-                        NSpace,
-                        {},
-                        {
-                            default: () => [
-                                h(
-                                    NButton,
-                                    {
-                                        secondary: true,
-                                        type: 'tertiary',
-                                        onClick: () => {
-                                            prefStore.setAsWelcomed(false)
-                                            n.destroy()
-                                        },
-                                    },
-                                    {
-                                        default: () => i18n.t('dialogue.welcome.reject'),
-                                    },
-                                ),
-                                h(
-                                    NButton,
-                                    {
-                                        secondary: true,
-                                        type: 'primary',
-                                        onClick: () => {
-                                            prefStore.setAsWelcomed(true)
-                                            n.destroy()
-                                        },
-                                    },
-                                    {
-                                        default: () => i18n.t('dialogue.welcome.accept'),
-                                    },
-                                ),
-                            ],
-                        },
-                    ),
-            })
         }
     } finally {
         initializing.value = false

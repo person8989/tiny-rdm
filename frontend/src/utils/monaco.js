@@ -41,12 +41,4 @@ export const setupMonaco = () => {
         rules: [],
         colors: {},
     })
-
-    // register default link opening behavior
-    monaco.editor.registerLinkOpener({
-        open(resource) {
-            BrowserOpenURL(resource.toString())
-            return true
-        },
-    })
 }

@@ -10,8 +10,6 @@
 ![GitHub All Releases](https://img.shields.io/github/downloads/tiny-craft/tiny-rdm/total)
 [![GitHub stars](https://img.shields.io/github/stars/tiny-craft/tiny-rdm)](https://github.com/tiny-craft/tiny-rdm/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/tiny-craft/tiny-rdm)](https://github.com/tiny-craft/tiny-rdm/fork)
-[![Discord](https://img.shields.io/discord/1170373259133456434?label=Discord&color=5865F2)](https://discord.gg/VTFbBMGjWh)
-[![X](https://img.shields.io/badge/Twitter-black?logo=x&logoColor=white)](https://twitter.com/Lykin53448)
 
 <strong>Tiny RDM is a modern lightweight cross-platform Redis desktop manager available for Mac, Windows, and Linux. It also provides a web version that can be deployed via Docker.</strong>
 </div>
@@ -149,18 +147,6 @@ docker run -d --name tinyrdm \
 | `ADMIN_PASSWORD` | Login password | - |
 
 ## About
-
-### Wechat Official Account
-
-<img src="docs/images/wechat_official.png" alt="wechat" width="360" />
-
-### Sponsor
-
-If this project helpful for you, feel free to buy me a cup of coffee ☕️.
-
-* Wechat Sponsor
-
-<img src="docs/images/wechat_sponsor.jpg" alt="wechat" width="200" />
 
 ### Thanks
 

@@ -148,18 +148,6 @@ docker run -d --name tinyrdm \
 
 ## について
 
-### Wechat公式アカウント
-
-<img src="docs/images/wechat_official.png" alt="wechat" width="360" />
-
-### スポンサー
-
-このプロジェクトが役立つ場合は、コーヒーを一杯おごってください ☕️。
-
-* Wechatスポンサー
-
-<img src="docs/images/wechat_sponsor.jpg" alt="wechat" width="200" />
-
 ### 謝辞
 
 以下のサービスプロバイダーによるホスティングスポンサーシップに感謝いたします

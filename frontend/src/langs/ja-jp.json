@@ -168,8 +168,6 @@
     "server": "サーバー",
     "browser": "データ ブラウザ",
     "log": "ログ",
-    "wechat_official": "Wechat 公式アカウント",
-    "follow_x": "私の \uD835\uDD4F をフォローする",
     "github": "Github",
     "logout": "ログアウト"
   },
@@ -386,9 +384,8 @@
     },
     "upgrade": {
       "title": "新しいバージョンが利用可能です",
-      "new_version_tip": "新しいバージョン{ver}が利用可能です。今すぐダウンロードしますか？",
+      "new_version_tip": "新しいバージョン{ver}が利用可能です。",
       "no_update": "最新バージョンです",
-      "download_now": "今すぐダウンロード",
       "later": "後で",
       "skip": "このバージョンをスキップ"
     },

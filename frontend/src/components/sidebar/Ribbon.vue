@@ -1,23 +1,17 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { NIcon, useThemeVars } from 'naive-ui'
 import Database from '@/components/icons/Database.vue'
 import Server from '@/components/icons/Server.vue'
 import IconButton from '@/components/common/IconButton.vue'
 import Config from '@/components/icons/Config.vue'
 import useDialogStore from 'stores/dialog.js'
-import Github from '@/components/icons/Github.vue'
 import { BrowserOpenURL } from 'wailsjs/runtime/runtime.js'
 import usePreferencesStore from 'stores/preferences.js'
 import Record from '@/components/icons/Record.vue'
 import { extraTheme } from '@/utils/extra_theme.js'
 import useBrowserStore from 'stores/browser.js'
 import { useRender } from '@/utils/render.js'
-import wechatUrl from '@/assets/images/wechat_official.png'
-import bilibiliUrl from '@/assets/images/bilibili_official.png'
-import QRCode from '@/components/icons/QRCode.vue'
-import Twitter from '@/components/icons/Twitter.vue'
-import { trackEvent } from '@/utils/analytics.js'
 import LogoutIcon from '@/components/icons/Logout.vue'
 import { isWeb } from '@/utils/platform.js'
 import { Logout } from '@/utils/api.js'
@@ -41,7 +35,6 @@ const emit = defineEmits(['update:value'])
 const iconSize = computed(() => Math.floor(props.width * 0.45))
 
 const browserStore = useBrowserStore()
-const showWechat = ref(false)
 const menuOptions = computed(() => {
     return [
         {
@@ -70,19 +63,6 @@ const preferencesOptions = computed(() => {
             key: 'preferences',
             icon: Config,
         },
-        // {
-        //     label: 'menu.help',
-        //     key: 'help',
-        //     icon: Help,
-        // },
-        {
-            label: 'menu.report_bug',
-            key: 'report',
-        },
-        {
-            label: 'menu.user_guide',
-            key: 'help',
-        },
         {
             label: 'menu.check_update',
             key: 'update',
@@ -108,35 +88,10 @@ const onSelectPreferenceMenu = (key) => {
         case 'update':
             prefStore.checkForUpdate(true)
             break
-        case 'report':
-            BrowserOpenURL('https://github.com/tiny-craft/tiny-rdm/issues')
-            break
-        case 'help':
-            if (prefStore.currentLanguage === 'zh') {
-                BrowserOpenURL('https://tinyrdm.com/zh/guide/')
-            } else {
-                BrowserOpenURL('https://tinyrdm.com/guide/')
-            }
-            break
         case 'about':
             dialogStore.openAboutDialog()
             break
     }
-}
-
-const openWechatOfficial = () => {
-    trackEvent('open', { target: 'wechat_official' })
-    showWechat.value = true
-}
-
-const openX = () => {
-    trackEvent('open', { target: 'x' })
-    BrowserOpenURL('https://twitter.com/LykinHuang')
-}
-
-const openGithub = () => {
-    trackEvent('open', { target: 'github' })
-    BrowserOpenURL('https://github.com/tiny-craft/tiny-rdm')
 }
 
 const handleLogout = async () => {
@@ -186,27 +141,6 @@ const exThemeVars = computed(() => {
                 <icon-button :icon="Config" :size="iconSize" :stroke-width="3" />
             </n-dropdown>
             <icon-button
-                v-if="prefStore.currentLanguage === 'zh'"
-                :icon="QRCode"
-                :size="iconSize"
-                :tooltip-delay="100"
-                t-tooltip="ribbon.wechat_official"
-                @click="openWechatOfficial" />
-            <icon-button
-                v-else
-                :border="false"
-                :icon="Twitter"
-                :size="iconSize"
-                :tooltip-delay="100"
-                t-tooltip="ribbon.follow_x"
-                @click="openX" />
-            <icon-button
-                :icon="Github"
-                :size="iconSize"
-                :tooltip-delay="100"
-                t-tooltip="ribbon.github"
-                @click="openGithub" />
-            <icon-button
                 v-if="isWeb()"
                 :icon="LogoutIcon"
                 :size="iconSize"
@@ -215,14 +149,6 @@ const exThemeVars = computed(() => {
                 t-tooltip="ribbon.logout"
                 @click="handleLogout" />
         </div>
-
-        <!-- wechat official modal -->
-        <n-modal v-model:show="showWechat" close-on-esc mask-closable transform-origin="center">
-            <n-flex vertical>
-                <n-image :src="wechatUrl" :width="400" preview-disabled />
-                <n-image :src="bilibiliUrl" :width="400" preview-disabled />
-            </n-flex>
-        </n-modal>
     </div>
 </template>
 

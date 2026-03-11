@@ -213,13 +213,9 @@ const handleLogin = async () => {
                 </n-dropdown>
                 <template v-if="prefStore.appVersion">
                     <n-divider style="margin: 0 4px" vertical />
-                    <a
-                        class="toolbar-btn toolbar-link"
-                        href="https://github.com/tiny-craft/tiny-rdm"
-                        rel="noopener noreferrer"
-                        target="_blank">
+                    <span class="toolbar-btn">
                         {{ prefStore.appVersion }}
-                    </a>
+                    </span>
                 </template>
             </div>
         </div>

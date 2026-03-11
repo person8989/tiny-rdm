@@ -44,8 +44,6 @@ func main() {
 	monitorSvc.Start(ctx)
 	pubsubSvc.Start(ctx)
 
-	services.GA().SetSecretKey("", "")
-
 	// Initialize auth
 	api.InitAuth()
 

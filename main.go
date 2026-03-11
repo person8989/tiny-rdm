@@ -81,9 +81,6 @@ func main() {
 			cliSvc.Start(ctx)
 			monitorSvc.Start(ctx)
 			pubsubSvc.Start(ctx)
-
-			services.GA().SetSecretKey(gaMeasurementID, gaSecretKey)
-			services.GA().Startup(version)
 		},
 		OnDomReady: func(ctx context.Context) {
 			x, y := prefSvc.GetWindowPosition(ctx)
