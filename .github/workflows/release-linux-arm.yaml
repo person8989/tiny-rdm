@@ -14,7 +14,7 @@ on:
 jobs:
   release:
     name: Release Linux ARM64 Deb
-    runs-on: ubuntu-22.04-arm
+    runs-on: ubuntu-24.04-arm
 
     env:
       PLATFORM: linux/arm64
@@ -48,7 +48,7 @@ jobs:
       - name: Install Ubuntu prerequisites
         run: |
           sudo apt-get update
-          sudo apt-get install -y jq libgtk-3-dev libwebkit2gtk-4.0-dev
+          sudo apt-get install -y jq libgtk-3-dev libwebkit2gtk-4.1-dev
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -70,14 +70,9 @@ jobs:
       - name: Build Wails app for Linux ARM64
         shell: bash
         run: |
-          CGO_ENABLED=1 wails build -platform ${PLATFORM} \
+          CGO_ENABLED=1 wails build -platform ${PLATFORM} -tags webkit2_41 \
             -ldflags "-X main.version=v${{ steps.normalise_version.outputs.version }} -X main.gaMeasurementID=${{ secrets.GA_MEASUREMENT_ID }} -X main.gaSecretKey=${{ secrets.LINUX_GA_SECRET }}" \
             -o ${APP_NAME}
-
-      - name: Inspect build output
-        shell: bash
-        run: |
-          find build -maxdepth 4 -print | sort || true
 
       - name: Create deb layout
         shell: bash
@@ -104,7 +99,7 @@ jobs:
           Priority: optional
           Architecture: ${DEB_ARCH}
           Maintainer: $(jq -r '.author.name' wails.json) <$(jq -r '.author.email' wails.json)>
-          Depends: libgtk-3-0, libwebkit2gtk-4.0-37
+          Depends: libgtk-3-0, libwebkit2gtk-4.1-0
           Description: $(jq -r '.info.comments' wails.json)
           EOF
 
