@@ -171,7 +171,6 @@
     "github": "Github",
     "logout": "退出登录"
   },
-  },
   "dialogue": {
     "close_confirm": "是否关闭此连接（{name}）",
     "edit_close_confirm": "编辑前需要关闭相关连接，是否继续",
