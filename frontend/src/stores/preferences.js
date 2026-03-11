@@ -264,10 +264,6 @@ const usePreferencesStore = defineStore('preferences', {
             }
         },
 
-        autoCheckUpdate() {
-            return get(this.general, 'checkUpdate', false)
-        },
-
         showLineNum() {
             return get(this.editor, 'showLineNum', true)
         },
