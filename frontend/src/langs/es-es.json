@@ -47,9 +47,7 @@
       "key_icon_style2": "Punto",
       "key_icon_style3": "Común",
       "update": "Actualizar",
-      "auto_check_update": "Buscar actualizaciones automáticamente",
-      "privacy": "Política de Privacidad",
-      "allow_track": "Permitir recopilar datos anónimos"
+      "privacy": "Política de Privacidad"
     },
     "editor": {
       "name": "Editor",
@@ -382,19 +380,6 @@
       "args": "Argumentos",
       "args_help": "Use [VALUE] como marcador de posición para codificar/decodificar contenido. El contenido se agregará al final si no se proporciona marcador de posición."
     },
-    "upgrade": {
-      "title": "Nueva versión disponible",
-      "new_version_tip": "La nueva versión {ver} está disponible.",
-      "no_update": "Está actualizado",
-      "later": "Más tarde",
-      "skip": "Omitir esta versión"
-    },
-    "welcome": {
-      "title": "¡Bienvenido a Tiny RDM!",
-      "content": "Con el fin de brindar una mejor experiencia de usuario, Tiny RDM recopila algunos datos anónimos para ayudar a optimizar el software y mejorar la experiencia del usuario. Tenga la seguridad de que esto no involucrará su información de privacidad personal.\n\nSi tiene alguna inquietud, puede desactivar esta función de recopilación de datos en cualquier momento yendo a Preferencias. Si tiene alguna pregunta, no dude en ponerse en contacto con el desarrollador. ¡Espero que Tiny RDM pueda ser un buen asistente para usted!",
-      "accept": "Ayudar a Mejorar",
-      "reject": "Rechazar"
-    },
     "about": {
       "source": "Código fuente",
       "website": "Sitio web oficial"
@@ -416,7 +401,6 @@
     "preferences": "Preferencias",
     "help": "Ayuda",
     "user_guide": "Guía de usuario",
-    "check_update": "Buscar actualizaciones...",
     "report_bug": "Reportar error",
     "about": "Acerca de"
   },

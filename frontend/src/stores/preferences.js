@@ -52,9 +52,6 @@ const usePreferencesStore = defineStore('preferences', {
             keyIconStyle: 0,
             useSysProxy: false,
             useSysProxyHttp: false,
-            checkUpdate: true,
-            skipVersion: '',
-            allowTrack: true,
         },
         editor: {
             font: '',
@@ -480,84 +477,6 @@ const usePreferencesStore = defineStore('preferences', {
             }
             this.decoder.splice(idx, 1)
             return true
-        },
-
-        setAsWelcomed(acceptTrack) {
-            this.behavior.welcomed = true
-            this.general.allowTrack = acceptTrack
-            this.savePreferences()
-        },
-
-        async checkForUpdate(manual = false) {
-            let msgRef = null
-            if (manual) {
-                msgRef = $message.loading(i18nGlobal.t('interface.retrieving_version'), { duration: 0 })
-            }
-            try {
-                const { success, data = {} } = await CheckForUpdate()
-                if (success) {
-                    const {
-                        version = 'v1.0.0',
-                        latest,
-                        description = {},
-                    } = data
-                    const descStr = description[this.currentLanguage] || description['en']
-                    // clean up old ad data
-                    localStorage.removeItem('sponsor_ad')
-                    localStorage.removeItem('banner')
-                    localStorage.removeItem('banner_next_time')
-                    if (
-                        !isEmpty(latest) &&
-                        (manual || compareVersion(latest, this.general.skipVersion) !== 0) &&
-                        compareVersion(latest, version) > 0
-                    ) {
-                        const notiRef = $notification.show({
-                            title: `${i18nGlobal.t('dialogue.upgrade.title')} - ${latest}`,
-                            content: descStr || i18nGlobal.t('dialogue.upgrade.new_version_tip', { ver: latest }),
-                            action: () =>
-                                h('div', { class: 'flex-box-h flex-item-expand' }, [
-                                    h(NSpace, { wrapItem: false }, () => [
-                                        h(
-                                            NButton,
-                                            {
-                                                size: 'small',
-                                                secondary: true,
-                                                onClick: () => {
-                                                    // skip this update
-                                                    this.general.skipVersion = latest
-                                                    this.savePreferences()
-                                                    notiRef.destroy()
-                                                },
-                                            },
-                                            () => i18nGlobal.t('dialogue.upgrade.skip'),
-                                        ),
-                                        h(
-                                            NButton,
-                                            {
-                                                size: 'small',
-                                                secondary: true,
-                                                onClick: notiRef.destroy,
-                                            },
-                                            () => i18nGlobal.t('dialogue.upgrade.later'),
-                                        ),
-                                    ]),
-                                ]),
-                        })
-                        return
-                    }
-                }
-
-                if (manual) {
-                    $message.info(i18nGlobal.t('dialogue.upgrade.no_update'))
-                }
-            } finally {
-                nextTick().then(() => {
-                    if (msgRef != null) {
-                        msgRef.destroy()
-                        msgRef = null
-                    }
-                })
-            }
         },
     },
 })

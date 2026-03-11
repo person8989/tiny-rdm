@@ -64,10 +64,6 @@ const preferencesOptions = computed(() => {
             icon: Config,
         },
         {
-            label: 'menu.check_update',
-            key: 'update',
-        },
-        {
             type: 'divider',
             key: 'd1',
         },
@@ -84,9 +80,6 @@ const onSelectPreferenceMenu = (key) => {
     switch (key) {
         case 'preferences':
             dialogStore.openPreferencesDialog()
-            break
-        case 'update':
-            prefStore.checkForUpdate(true)
             break
         case 'about':
             dialogStore.openAboutDialog()

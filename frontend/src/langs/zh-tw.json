@@ -47,9 +47,7 @@
       "key_icon_style2": "點類型",
       "key_icon_style3": "通用圖示",
       "update": "更新",
-      "auto_check_update": "自動檢查更新",
-      "privacy": "隱私權政策",
-      "allow_track": "允許收集匿名數據"
+      "privacy": "隱私權政策"
     },
     "editor": {
       "name": "編輯器",
@@ -382,19 +380,6 @@
       "args": "運行參數",
       "args_help": "使用[VALUE]代替編碼/解碼內容佔位符，如果不填內容佔位則默認放最後"
     },
-    "upgrade": {
-      "title": "有可用新版本",
-      "new_version_tip": "發現新版本（{ver}）",
-      "no_update": "目前已是最新版",
-      "later": "稍後提醒我",
-      "skip": "忽略本次更新"
-    },
-    "welcome": {
-      "title": "歡迎使用Tiny RDM！",
-      "content": "為了提供更好的使用者體驗，Tiny RDM 會收集一些匿名的數據，以幫助最佳化軟體和改進使用者體驗，請放心這不會涉及到您的個人隱私資訊。\n\n如果您對此有任何顧慮，可以隨時前往\"偏好設定\"中關閉此項數據收集功能。有任何問題可聯繫開發者，希望Tiny RDM可以成為您的好幫手！",
-      "accept": "幫助改進",
-      "reject": "不接受"
-    },
     "about": {
       "source": "源碼地址",
       "website": "官方網站"
@@ -416,7 +401,6 @@
     "preferences": "偏好設定",
     "help": "説明",
     "user_guide": "使用指南",
-    "check_update": "檢查更新...",
     "report_bug": "回報錯誤",
     "about": "關於"
   },

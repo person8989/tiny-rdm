@@ -46,8 +46,4 @@ func registerPreferencesRoutes(rg *gin.RouterGroup) {
 	g.GET("/buildin-decoder", func(c *gin.Context) {
 		c.JSON(http.StatusOK, services.Preferences().GetBuildInDecoder())
 	})
-
-	g.GET("/check-update", func(c *gin.Context) {
-		c.JSON(http.StatusOK, services.Preferences().CheckForUpdate())
-	})
 }

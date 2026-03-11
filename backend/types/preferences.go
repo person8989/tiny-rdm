@@ -23,8 +23,6 @@ func NewPreferences() Preferences {
 			FontSize:     consts.DEFAULT_FONT_SIZE,
 			ScanSize:     consts.DEFAULT_SCAN_SIZE,
 			KeyIconStyle: 0,
-			CheckUpdate:  true,
-			AllowTrack:   true,
 		},
 		Editor: PreferencesEditor{
 			FontSize:       consts.DEFAULT_FONT_SIZE,
@@ -62,9 +60,6 @@ type PreferencesGeneral struct {
 	KeyIconStyle    int      `json:"keyIconStyle" yaml:"key_icon_style"`
 	UseSysProxy     bool     `json:"useSysProxy" yaml:"use_sys_proxy,omitempty"`
 	UseSysProxyHttp bool     `json:"useSysProxyHttp" yaml:"use_sys_proxy_http,omitempty"`
-	CheckUpdate     bool     `json:"checkUpdate" yaml:"check_update"`
-	SkipVersion     string   `json:"skipVersion" yaml:"skip_version,omitempty"`
-	AllowTrack      bool     `json:"allowTrack" yaml:"allow_track"`
 }
 
 type PreferencesEditor struct {

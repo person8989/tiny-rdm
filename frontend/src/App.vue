@@ -99,9 +99,6 @@ const initApp = async () => {
         await prefStore.loadFontList()
         await prefStore.loadBuildInDecoder()
         await connectionStore.initConnections()
-        if (!isWeb() && prefStore.autoCheckUpdate) {
-            prefStore.checkForUpdate()
-        }
     } finally {
         initializing.value = false
     }

@@ -402,10 +402,6 @@ export function GetAppVersion() {
     return get('/preferences/version')
 }
 
-export function CheckForUpdate() {
-    return get('/preferences/check-update')
-}
-
 // ==================== System Service ====================
 
 // Alias used in App.vue

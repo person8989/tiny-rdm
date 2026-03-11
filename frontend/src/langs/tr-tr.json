@@ -47,9 +47,7 @@
       "key_icon_style2": "Nokta",
       "key_icon_style3": "Ortak",
       "update": "Güncelle",
-      "auto_check_update": "Güncellemeleri otomatik kontrol et",
-      "privacy": "Gizlilik",
-      "allow_track": "Anonim veri toplanmasına izin ver"
+      "privacy": "Gizlilik"
     },
     "editor": {
       "name": "Editör",
@@ -382,19 +380,6 @@
       "args": "Argümanlar",
       "args_help": "Kodlama/kod çözme içeriği için [VALUE] yer tutucusu kullanın. Yer tutucu sağlanmazsa içerik sonuna eklenecektir."
     },
-    "upgrade": {
-      "title": "Yeni Sürüm Mevcut",
-      "new_version_tip": "Yeni {ver} sürümü mevcut.",
-      "no_update": "Güncelsiniz",
-      "later": "Sonra",
-      "skip": "Bu Sürümü Atla"
-    },
-    "welcome": {
-      "title": "Tiny RDM'e Hoş Geldiniz!",
-      "content": "Daha iyi bir kullanıcı deneyimi sağlamak için Tiny RDM, yazılımı optimize etmeye ve kullanıcı deneyimini iyileştirmeye yardımcı olmak için bazı anonim veriler toplamaktadır. Bunun kişisel gizlilik bilgilerinizi içermediğinden emin olabilirsiniz.\n\nHerhangi bir endişeniz varsa, Tercihler'e giderek bu veri toplama özelliğini istediğiniz zaman kapatabilirsiniz. Herhangi bir sorunuz varsa, geliştiriciye ulaşmaktan çekinmeyin. Umarım Tiny RDM yararlı asistanınız olur!",
-      "accept": "İyileştirmeye Yardım Et",
-      "reject": "Reddet"
-    },
     "about": {
       "source": "Kaynak Kod",
       "website": "Resmi Web Sitesi"
@@ -416,7 +401,6 @@
     "preferences": "Tercihler",
     "help": "Yardım",
     "user_guide": "Kullanıcı Kılavuzu",
-    "check_update": "Güncellemeleri Kontrol Et...",
     "report_bug": "Hata Bildir",
     "about": "Hakkında"
   },
