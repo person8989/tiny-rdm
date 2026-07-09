@@ -1,12 +1,9 @@
 name: Release Windows App
-
 run-name: ${{ github.event.release.tag_name || github.event.inputs.tag }}
-
 
 on:
   release:
     types: [published]
-
   workflow_dispatch:
     inputs:
       tag:
@@ -14,285 +11,130 @@ on:
         required: true
         default: '1.0.0'
 
-
 jobs:
   release:
     name: Release Windows App
-
     runs-on: windows-latest
-
     strategy:
+      fail-fast: false
       matrix:
         platform:
           - windows/amd64
           - windows/arm64
 
-
     steps:
-
       - name: Checkout source code
         uses: actions/checkout@v4
 
-
-
-      # windows/amd64 -> windows_x64
-      # windows/arm64 -> windows_arm64
       - name: Normalise platform tag
         id: normalise_platform
         shell: bash
         run: |
-          tag=$(echo "${{ matrix.platform }}" \
-          | sed \
-          -e 's/\//_/g' \
-          -e 's/amd64/x64/g')
-
+          tag=$(echo "${{ matrix.platform }}" | sed -e 's/\//_/g' -e 's/amd64/x64/g')
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
-
-
-
-      # amd64 -> x64
-      # arm64 -> arm64
-      - name: Normalise platform name
-        id: normalise_platform_name
-        shell: bash
-        run: |
-          pname=$(echo "${{ matrix.platform }}" \
-          | sed 's/windows\///g' \
-          | sed 's/amd64/x64/g')
-
-          echo "pname=$pname" >> "$GITHUB_OUTPUT"
-
-
 
       - name: Normalise version
         id: normalise_version
         shell: bash
         run: |
-
           if [ -n "${{ github.event.release.tag_name }}" ]; then
-            version=$(echo "${{ github.event.release.tag_name }}" | sed 's/v//g')
+            version=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//')
           else
-            version=$(echo "${{ github.event.inputs.tag }}" | sed 's/v//g')
+            version=$(echo "${{ github.event.inputs.tag }}" | sed 's/^v//')
           fi
-
-
           echo "version=$version" >> "$GITHUB_OUTPUT"
-
-
 
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
           go-version: stable
 
-
-
       - name: Install dependencies
         uses: crazy-max/ghaction-chocolatey@v2
         with:
           args: install nsis jq
 
-
-
       - name: Install Wails
         shell: bash
-        run: |
-          go install github.com/wailsapp/wails/v2/cmd/wails@latest
-
-
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
-
-
       - name: Update version and install frontend
         shell: bash
         run: |
-
           npm install -g npm@9
-
-
-          jq \
-          '.info.productVersion = "${{ steps.normalise_version.outputs.version }}"' \
-          wails.json > tmp.json
-
+          jq '.info.productVersion = "${{ steps.normalise_version.outputs.version }}"' wails.json > tmp.json
           mv tmp.json wails.json
-
-
-
           cd frontend
-
-
-          jq \
-          '.version = "${{ steps.normalise_version.outputs.version }}"' \
-          package.json > tmp.json
-
+          jq '.version = "${{ steps.normalise_version.outputs.version }}"' package.json > tmp.json
           mv tmp.json package.json
-
-
-
           npm install
-
-
-
 
       - name: Setup GOARCH
         shell: bash
         run: |
-
-          if [ "${{ matrix.platform }}" = "windows/amd64" ]; then
-            echo "GOARCH=amd64" >> $GITHUB_ENV
-          fi
-
-
-          if [ "${{ matrix.platform }}" = "windows/arm64" ]; then
-            echo "GOARCH=arm64" >> $GITHUB_ENV
-          fi
-
-
-
-
-
-      ###################################
-      # Portable
-      ###################################
+          case "${{ matrix.platform }}" in
+            windows/amd64)
+              echo "GOARCH=amd64" >> "$GITHUB_ENV"
+              ;;
+            windows/arm64)
+              echo "GOARCH=arm64" >> "$GITHUB_ENV"
+              ;;
+          esac
 
       - name: Build portable application
         shell: bash
         run: |
-
-          CGO_ENABLED=1 \
-          GOARCH=${GOARCH} \
-          wails build \
-          -clean \
-          -platform ${{ matrix.platform }} \
-          -webview2 embed \
-          -ldflags "-X main.version=v${{ steps.normalise_version.outputs.version }}"
-
-
-
+          CGO_ENABLED=1 GOARCH="$GOARCH" wails build -clean -platform ${{ matrix.platform }} \
+            -webview2 embed \
+            -ldflags "-X main.version=v${{ steps.normalise_version.outputs.version }}"
 
       - name: Compress portable
         working-directory: ./build/bin
         shell: pwsh
         run: |
-
-          Compress-Archive \
-          "Tiny RDM.exe" \
-          "TinyRDM_Portable_${{ steps.normalise_version.outputs.version }}_${{ steps.normalise_platform.outputs.tag }}.zip"
-
-
-
+          Compress-Archive -Path "Tiny RDM.exe" -DestinationPath "TinyRDM_Portable_${{ steps.normalise_version.outputs.version }}_${{ steps.normalise_platform.outputs.tag }}.zip" -Force
 
       - name: Upload portable release
         uses: softprops/action-gh-release@v2
         with:
-
           tag_name: v${{ steps.normalise_version.outputs.version }}
-
-          files: |
-            ./build/bin/TinyRDM_Portable_${{ steps.normalise_version.outputs.version }}_${{ steps.normalise_platform.outputs.tag }}.zip
-
+          files: ./build/bin/TinyRDM_Portable_${{ steps.normalise_version.outputs.version }}_${{ steps.normalise_platform.outputs.tag }}.zip
           token: ${{ secrets.GITHUB_TOKEN }}
-
-
-
-
-
-      ###################################
-      # NSIS Installer
-      ###################################
 
       - name: Build NSIS installer
         shell: bash
         run: |
-
           export PATH="/c/Program Files (x86)/NSIS:$PATH"
-
-
           makensis -VERSION
+          CGO_ENABLED=1 GOARCH="$GOARCH" wails build -clean -platform ${{ matrix.platform }} \
+            -nsis \
+            -webview2 embed \
+            -ldflags "-X main.version=v${{ steps.normalise_version.outputs.version }}"
 
-
-          CGO_ENABLED=1 \
-          GOARCH=${GOARCH} \
-          wails build \
-          -clean \
-          -platform ${{ matrix.platform }} \
-          -nsis \
-          -webview2 embed \
-          -ldflags "-X main.version=v${{ steps.normalise_version.outputs.version }}"
-
-
-
-
-
-      - name: Check installer output
-        working-directory: ./build/bin
-        shell: pwsh
-        run: |
-
-          Write-Host "Installer files:"
-
-          Get-ChildItem *.exe
-
-
-
-
-
-      # 自动寻找 installer
       - name: Rename installer
         working-directory: ./build/bin
         shell: pwsh
         run: |
+          $installer = Get-ChildItem -File -Filter "*installer*.exe" | Select-Object -First 1
 
-
-          $installer = Get-ChildItem *.exe |
-          Where-Object {
-            $_.Name -match "installer"
-          } |
-          Select-Object -First 1
-
-
-
-          if (!$installer)
-          {
+          if (!$installer) {
             Write-Host "No installer found"
-
             Get-ChildItem
-
             exit 1
           }
 
-
-
-          $newName = `
-          "TinyRDM_Setup_${{ steps.normalise_version.outputs.version }}_${{ steps.normalise_platform_name.outputs.pname }}.exe"
-
-
-
-          Rename-Item `
-          -Path $installer.FullName `
-          -NewName $newName
-
-
-
+          $newName = "TinyRDM_Setup_${{ steps.normalise_version.outputs.version }}_${{ steps.normalise_platform.outputs.tag }}.exe"
+          Rename-Item -Path $installer.FullName -NewName $newName
           Write-Host "Created: $newName"
-
-
-
-
 
       - name: Upload installer release
         uses: softprops/action-gh-release@v2
-
         with:
-
           tag_name: v${{ steps.normalise_version.outputs.version }}
-
-          files: |
-            ./build/bin/TinyRDM_Setup_${{ steps.normalise_version.outputs.version }}_${{ steps.normalise_platform_name.outputs.pname }}.exe
-
+          files: ./build/bin/TinyRDM_Setup_${{ steps.normalise_version.outputs.version }}_${{ steps.normalise_platform.outputs.tag }}.exe
           token: ${{ secrets.GITHUB_TOKEN }}
