@@ -2,6 +2,7 @@ name: Release Windows App
 
 run-name: ${{ github.event.release.tag_name || github.event.inputs.tag }}
 
+
 on:
   release:
     types: [published]
@@ -17,6 +18,7 @@ on:
 jobs:
   release:
     name: Release Windows App
+
     runs-on: windows-latest
 
     strategy:
@@ -27,8 +29,10 @@ jobs:
 
 
     steps:
+
       - name: Checkout source code
         uses: actions/checkout@v4
+
 
 
       # windows/amd64 -> windows_x64
@@ -38,11 +42,12 @@ jobs:
         shell: bash
         run: |
           tag=$(echo "${{ matrix.platform }}" \
-            | sed \
-            -e 's/\//_/g' \
-            -e 's/amd64/x64/g')
+          | sed \
+          -e 's/\//_/g' \
+          -e 's/amd64/x64/g')
 
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
 
 
       # amd64 -> x64
@@ -52,23 +57,27 @@ jobs:
         shell: bash
         run: |
           pname=$(echo "${{ matrix.platform }}" \
-            | sed 's/windows\///g' \
-            | sed 's/amd64/x64/g')
+          | sed 's/windows\///g' \
+          | sed 's/amd64/x64/g')
 
           echo "pname=$pname" >> "$GITHUB_OUTPUT"
 
 
-      - name: Normalise version tag
+
+      - name: Normalise version
         id: normalise_version
         shell: bash
         run: |
+
           if [ -n "${{ github.event.release.tag_name }}" ]; then
             version=$(echo "${{ github.event.release.tag_name }}" | sed 's/v//g')
           else
             version=$(echo "${{ github.event.inputs.tag }}" | sed 's/v//g')
           fi
 
+
           echo "version=$version" >> "$GITHUB_OUTPUT"
+
 
 
       - name: Setup Go
@@ -77,10 +86,12 @@ jobs:
           go-version: stable
 
 
-      - name: Install chocolatey
+
+      - name: Install dependencies
         uses: crazy-max/ghaction-chocolatey@v2
         with:
           args: install nsis jq
+
 
 
       - name: Install Wails
@@ -89,15 +100,18 @@ jobs:
           go install github.com/wailsapp/wails/v2/cmd/wails@latest
 
 
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
 
-      - name: Build frontend assets
+
+      - name: Update version and install frontend
         shell: bash
         run: |
+
           npm install -g npm@9
 
 
@@ -106,6 +120,7 @@ jobs:
           wails.json > tmp.json
 
           mv tmp.json wails.json
+
 
 
           cd frontend
@@ -118,16 +133,20 @@ jobs:
           mv tmp.json package.json
 
 
+
           npm install
 
 
 
-      - name: Setup Go architecture
+
+      - name: Setup GOARCH
         shell: bash
         run: |
+
           if [ "${{ matrix.platform }}" = "windows/amd64" ]; then
             echo "GOARCH=amd64" >> $GITHUB_ENV
           fi
+
 
           if [ "${{ matrix.platform }}" = "windows/arm64" ]; then
             echo "GOARCH=arm64" >> $GITHUB_ENV
@@ -135,33 +154,43 @@ jobs:
 
 
 
-      # Portable EXE
-      - name: Build Windows portable app
+
+
+      ###################################
+      # Portable
+      ###################################
+
+      - name: Build portable application
         shell: bash
         run: |
+
           CGO_ENABLED=1 \
           GOARCH=${GOARCH} \
           wails build \
-            -clean \
-            -platform ${{ matrix.platform }} \
-            -webview2 embed \
-            -ldflags "-X main.version=v${{ steps.normalise_version.outputs.version }}"
+          -clean \
+          -platform ${{ matrix.platform }} \
+          -webview2 embed \
+          -ldflags "-X main.version=v${{ steps.normalise_version.outputs.version }}"
 
 
 
-      - name: Compress portable binary
+
+      - name: Compress portable
         working-directory: ./build/bin
         shell: pwsh
         run: |
-          Compress-Archive `
-            "Tiny RDM.exe" `
-            "TinyRDM_Portable_${{ steps.normalise_version.outputs.version }}_${{ steps.normalise_platform.outputs.tag }}.zip"
+
+          Compress-Archive \
+          "Tiny RDM.exe" \
+          "TinyRDM_Portable_${{ steps.normalise_version.outputs.version }}_${{ steps.normalise_platform.outputs.tag }}.zip"
 
 
 
-      - name: Upload release asset (Portable)
+
+      - name: Upload portable release
         uses: softprops/action-gh-release@v2
         with:
+
           tag_name: v${{ steps.normalise_version.outputs.version }}
 
           files: |
@@ -171,43 +200,96 @@ jobs:
 
 
 
+
+
+      ###################################
       # NSIS Installer
-      - name: Build Windows NSIS installer
+      ###################################
+
+      - name: Build NSIS installer
         shell: bash
         run: |
+
           export PATH="/c/Program Files (x86)/NSIS:$PATH"
 
-          which makensis || (
-            echo "makensis not found"
-            exit 1
-          )
+
+          makensis -VERSION
 
 
           CGO_ENABLED=1 \
           GOARCH=${GOARCH} \
           wails build \
-            -clean \
-            -platform ${{ matrix.platform }} \
-            -nsis \
-            -webview2 embed \
-            -ldflags "-X main.version=v${{ steps.normalise_version.outputs.version }}"
+          -clean \
+          -platform ${{ matrix.platform }} \
+          -nsis \
+          -webview2 embed \
+          -ldflags "-X main.version=v${{ steps.normalise_version.outputs.version }}"
 
 
 
+
+
+      - name: Check installer output
+        working-directory: ./build/bin
+        shell: pwsh
+        run: |
+
+          Write-Host "Installer files:"
+
+          Get-ChildItem *.exe
+
+
+
+
+
+      # 自动寻找 installer
       - name: Rename installer
         working-directory: ./build/bin
         shell: pwsh
         run: |
+
+
+          $installer = Get-ChildItem *.exe |
+          Where-Object {
+            $_.Name -match "installer"
+          } |
+          Select-Object -First 1
+
+
+
+          if (!$installer)
+          {
+            Write-Host "No installer found"
+
+            Get-ChildItem
+
+            exit 1
+          }
+
+
+
+          $newName = `
+          "TinyRDM_Setup_${{ steps.normalise_version.outputs.version }}_${{ steps.normalise_platform_name.outputs.pname }}.exe"
+
+
+
           Rename-Item `
-            -Path "tinyrdm-${{ steps.normalise_platform_name.outputs.pname }}-installer.exe" `
-            -NewName `
-            "TinyRDM_Setup_${{ steps.normalise_version.outputs.version }}_${{ steps.normalise_platform_name.outputs.pname }}.exe"
+          -Path $installer.FullName `
+          -NewName $newName
 
 
 
-      - name: Upload release asset (Installer)
+          Write-Host "Created: $newName"
+
+
+
+
+
+      - name: Upload installer release
         uses: softprops/action-gh-release@v2
+
         with:
+
           tag_name: v${{ steps.normalise_version.outputs.version }}
 
           files: |
